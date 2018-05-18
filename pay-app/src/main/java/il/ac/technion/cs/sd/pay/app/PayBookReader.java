@@ -20,13 +20,13 @@ public interface PayBookReader {
   OptionalDouble getPayment(String clientId, String sellerId);
 
   /**
-   * Returns a <b>sorted</b> list of all the clients by their global spending.
+   * Returns a <b>sorted</b> list of the top-10 clients by their global spending.
    * Secondary sort is by client ID.
    */
   List<String> getBiggestSpenders();
 
   /**
-   * Returns a <b>sorted</b> list of all the sellers by their global earnings.
+   * Returns a <b>sorted</b> list of the top-10 sellers by their global earnings.
    * Secondary sort is by seller ID.
    */
   List<String> getRichestSellers();
@@ -46,13 +46,13 @@ public interface PayBookReader {
   Optional<String> getBiggestClient(String sellerId);
 
   /**
-   * Returns the amounts of all the biggest payments made to sellers.
+   * Returns the amounts of the top-10 biggest payments made to sellers.
    * A map from seller ID to their biggest payment amount.
    */
   Map<String, Integer> getBiggestPaymentsToSellers();
 
   /**
-   * Returns the amounts of all the biggest payments made by clients.
+   * Returns the amounts of the top-10 biggest payments made by clients.
    * A map from client ID to their biggest payment amount.
    */
   Map<String, Integer> getBiggestPaymentsFromClients();

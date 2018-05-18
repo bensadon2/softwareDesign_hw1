@@ -1,0 +1,7 @@
+.idea/
+library/src/test/java/desktop.ini
+library/src/main/java/foo/desktop.ini
+library/target/
+pay-app/target/
+pay-test/target/test-classes/il/ac/technion/cs/sd/pay/test/ExampleTest.class
+pay-test/target/
