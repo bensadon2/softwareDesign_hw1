@@ -25,8 +25,8 @@ public class PayBookInitializerImpl implements PayBookInitializer {
 
     public static final String SELLERS = "sellers";
     public static final String CLIENTS = "clients";
-    public static final String TOP_PAYMENTS_CLIENTS = "top payments clients";
-    public static final String TOP_PAYMENTS_SELLERS = "top payments sellers";
+//    public static final String TOP_PAYMENTS_CLIENTS = "top payments clients";
+//    public static final String TOP_PAYMENTS_SELLERS = "top payments sellers";
     private final PersistentDatabase dbByClients;
     private final PersistentDatabase dbBySellers;
 
@@ -34,7 +34,9 @@ public class PayBookInitializerImpl implements PayBookInitializer {
     public PayBookInitializerImpl(@Named("dbByClients") PersistentDatabase dbByClients,
                                   @Named("dbBySellers") PersistentDatabase dbBySellers) {
         this.dbByClients = dbByClients;
+        this.dbByClients.dbInstance(CLIENTS);
         this.dbBySellers = dbBySellers;
+        this.dbBySellers.dbInstance(SELLERS);
     }
 
 
