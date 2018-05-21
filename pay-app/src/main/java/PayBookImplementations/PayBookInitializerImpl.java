@@ -19,7 +19,7 @@ import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO: 20-May-18 use maven to define depencies for these libraries or something?
+// TODO: 20-May-18 use maven to define dependencies for these libraries or something?
 
 public class PayBookInitializerImpl implements PayBookInitializer {
 
@@ -34,7 +34,9 @@ public class PayBookInitializerImpl implements PayBookInitializer {
     public PayBookInitializerImpl(@Named("dbByClients") PersistentDatabase dbByClients,
                                   @Named("dbBySellers") PersistentDatabase dbBySellers) {
         this.dbByClients = dbByClients;
+        this.dbByClients.dbInstance("clientDb");
         this.dbBySellers = dbBySellers;
+        this.dbBySellers.dbInstance("sellerDb");
     }
 
 
