@@ -99,7 +99,7 @@ public class PayBookReaderImpl implements PayBookReader {
     }
 
     /**
-     * sorts the map, bye the values, then by the keys.
+     * sorts the map, by the values, then by the keys.
      * @param map a <String, Long> map
      * @return a sorted list of entries
      */
