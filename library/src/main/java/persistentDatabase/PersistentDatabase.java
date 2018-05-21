@@ -14,7 +14,7 @@ public class PersistentDatabase {
         // use external "open" method here
     }
 
-    public void fillDb(String dbName, Map<String, List<byte[]>> data) {
+    public void saveToDb(Map<String, List<byte[]>> data) {
         throw new UnsupportedOperationException("not implemented");
     }
 }
