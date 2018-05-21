@@ -55,4 +55,12 @@ public class PersistentDatabase {
     public List<byte[]> get(String id) {
         throw new UnsupportedOperationException("not implemented");
     }
+
+    public List<List<byte[]>> getAllValues() {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    public List<byte[]> getAllKeys() {
+        throw new UnsupportedOperationException("not implemented");
+    }
 }
