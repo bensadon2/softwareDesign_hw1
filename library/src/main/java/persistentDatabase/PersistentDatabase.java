@@ -51,4 +51,8 @@ public class PersistentDatabase {
         }
 //        throw new UnsupportedOperationException("not implemented");
     }
+
+    public List<byte[]> get(String id) {
+        throw new UnsupportedOperationException("not implemented");
+    }
 }
