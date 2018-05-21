@@ -31,16 +31,17 @@ public class PayBookReaderImpl implements PayBookReader {
 
     @Override
     public boolean paidTo(String clientId, String sellerId) {
-        List<byte[]> paymentsByteList = dbByClients.get(clientId);
-        List<Payment> paymentsToSeller = paymentsByteList.stream().map(bytes -> new Payment(bytes))
-                .filter(payment -> payment.getId().equals(sellerId))
-                .collect(Collectors.toList());
+        List<Payment> paymentsToSeller = getClientSellerPayments(clientId, sellerId);
         return !paymentsToSeller.isEmpty();
     }
 
     @Override
     public OptionalDouble getPayment(String clientId, String sellerId) {
-        return null;
+        List<Payment> clientSellerPayments = getClientSellerPayments(clientId, sellerId);
+        if (!clientSellerPayments.isEmpty()){
+            return OptionalDouble.of(clientSellerPayments.get(0).getValue());
+        }
+        return OptionalDouble.empty();
     }
 
     @Override
@@ -71,5 +72,12 @@ public class PayBookReaderImpl implements PayBookReader {
     @Override
     public Map<String, Integer> getBiggestPaymentsFromClients() {
         return null;
+    }
+
+    private List<Payment> getClientSellerPayments(String clientId, String sellerId) {
+        List<byte[]> paymentsByteList = dbByClients.get(clientId);
+        return paymentsByteList.stream().map(bytes -> new Payment(bytes))
+                .filter(payment -> payment.getId().equals(sellerId))
+                .collect(Collectors.toList());
     }
 }
