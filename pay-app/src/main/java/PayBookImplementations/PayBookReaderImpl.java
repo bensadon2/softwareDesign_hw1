@@ -44,20 +44,16 @@ public class PayBookReaderImpl implements PayBookReader {
 
     @Override
     public List<String> getBiggestSpenders() {
-        List<byte[]> clientsList = dbByClients.getAllKeys();
-        Map<String, Long> map = getClientSumMap(clientsList);
-
-        ArrayList<Map.Entry<String, Long>> entries = sortEntries(map);
-
-        // get the top 10 if the exist.
-        return entries.subList(0,min(9,entries.size())).stream()
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        // this assumes the usual sort is "biggest" first
+        Map<String, Long> map = sumMap(dbByClients);
+        return top10FromMap(map);
     }
 
     @Override
     public List<String> getRichestSellers() {
-        return null;
+        // this assumes the usual sort is "biggest" first
+        Map<String, Long> map = sumMap(dbBySellers);
+        return top10FromMap(map);
     }
 
     @Override
@@ -87,15 +83,34 @@ public class PayBookReaderImpl implements PayBookReader {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Long> getClientSumMap(List<byte[]> clientsList) {
+    /**
+     * makes a map of the given {@link PersistentDatabase}'s keys and the total sum of their relevant payments.
+     * @param persistentDb the db to perform the operation on.
+     * @return a map with the keys of the db, with their respective sums as values.
+     */
+    private Map<String, Long> sumMap(PersistentDatabase persistentDb) {
+        List<byte[]> idList = persistentDb.getAllKeys();
         Map<String, Long> map = new HashMap<>();
-        for (byte[] clientId : clientsList) {
-            String clientIdStr = new String(clientId);
-            List<byte[]> clientPaymentsBytes = dbByClients.get(clientIdStr);
-            long clientSum = clientPaymentsBytes.stream().mapToLong(bytes -> (new Payment(bytes)).getValue()).sum();
-            map.put(clientIdStr, clientSum);
+        for (byte[] id : idList) {
+            String idStr = new String(id);
+            List<byte[]> paymentsBytes = persistentDb.get(idStr);
+            long sum = paymentsBytes.stream().mapToLong(bytes -> (new Payment(bytes)).getValue()).sum();
+            map.put(idStr, sum);
         }
         return map;
+    }
+
+    /**
+     * returns the top 10 IDs and their sums (descending order). sorting is by values, then keys
+     * @param map the map that will be sorted.
+     * @return a sublist (if the map is big enough) of the highest 10 entries.
+     */
+    private List<String> top10FromMap(Map<String, Long> map) {
+        ArrayList<Map.Entry<String, Long>> entries = sortEntries(map);
+        // get the top 10 if the exist.
+        return entries.subList(0,min(9,entries.size())).stream()
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     /**
