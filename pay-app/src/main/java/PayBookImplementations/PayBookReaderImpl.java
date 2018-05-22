@@ -18,9 +18,17 @@ public class PayBookReaderImpl implements PayBookReader {
     private final PersistentDatabase dbByClients;
     private final PersistentDatabase dbBySellers;
 
+//    @Inject
+//    public PayBookReaderImpl(@Named("dbByClients") PersistentDatabase dbByClients,
+//                             @Named("dbBySellers") PersistentDatabase dbBySellers) {
+//        this.dbByClients = dbByClients;
+//        this.dbByClients.dbInstance(CLIENTS);
+//        this.dbBySellers = dbBySellers;
+//        this.dbBySellers.dbInstance(SELLERS);
+//    }
+
     @Inject
-    public PayBookReaderImpl(@Named("dbByClients") PersistentDatabase dbByClients,
-                             @Named("dbBySellers") PersistentDatabase dbBySellers) {
+    public PayBookReaderImpl(PersistentDatabase dbByClients, PersistentDatabase dbBySellers) {
         this.dbByClients = dbByClients;
         this.dbByClients.dbInstance(CLIENTS);
         this.dbBySellers = dbBySellers;
@@ -29,6 +37,10 @@ public class PayBookReaderImpl implements PayBookReader {
 
     @Override
     public boolean paidTo(String clientId, String sellerId) {
+        List<byte[]> paymentsByteList = dbByClients.get(clientId);
+        List<Payment> paymentsToSeller = paymentsByteList.stream().map(Payment::new)
+                .filter(payment -> payment.getId().equals(sellerId))
+                .collect(Collectors.toList());
         List<Payment> paymentsToSeller = getClientSellerPayments(clientId, sellerId);
         return !paymentsToSeller.isEmpty();
     }

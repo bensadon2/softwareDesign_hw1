@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import il.ac.technion.cs.sd.pay.app.PayBookInitializer;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
+import org.apache.commons.lang3.SerializationUtils;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,6 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // TODO: 20-May-18 use maven to define dependencies for these libraries or something?
 
@@ -25,14 +27,22 @@ public class PayBookInitializerImpl implements PayBookInitializer {
 
     public static final String SELLERS = "sellers";
     public static final String CLIENTS = "clients";
-//    public static final String TOP_PAYMENTS_CLIENTS = "top payments clients";
+    //    public static final String TOP_PAYMENTS_CLIENTS = "top payments clients";
 //    public static final String TOP_PAYMENTS_SELLERS = "top payments sellers";
     private final PersistentDatabase dbByClients;
     private final PersistentDatabase dbBySellers;
 
+//    @Inject
+//    public PayBookInitializerImpl(@Named("dbByClients") PersistentDatabase dbByClients,
+//                                  @Named("dbBySellers") PersistentDatabase dbBySellers) {
+//        this.dbByClients = dbByClients;
+//        this.dbByClients.dbInstance(CLIENTS);
+//        this.dbBySellers = dbBySellers;
+//        this.dbBySellers.dbInstance(SELLERS);
+//    }
+
     @Inject
-    public PayBookInitializerImpl(@Named("dbByClients") PersistentDatabase dbByClients,
-                                  @Named("dbBySellers") PersistentDatabase dbBySellers) {
+    public PayBookInitializerImpl(PersistentDatabase dbByClients, PersistentDatabase dbBySellers) {
         this.dbByClients = dbByClients;
         this.dbByClients.dbInstance(CLIENTS);
         this.dbBySellers = dbBySellers;
@@ -50,8 +60,8 @@ public class PayBookInitializerImpl implements PayBookInitializer {
             // summed payments from same client to same seller.
             Map<String, List<Payment>> sellers = buildSellerMap(clients);
 
-            Map<String, List<byte[]>> clientsByteMap = convertToByteMap(clients);
-            Map<String, List<byte[]>> sellersByteMap = convertToByteMap(sellers);   // TODO: 21-May-18 more efficient way for this might be required
+//            Map<String, List<byte[]>> clientsByteMap = convertToByteMap(clients);
+//            Map<String, List<byte[]>> sellersByteMap = convertToByteMap(sellers);   // TODO: 21-May-18 more efficient way for this might be required
 
             // TODO: 20-May-18 sort the whole lib usage here...
             /* use library to open the databases required (currently like 5? sellers, clients, topPaymentsClients,
@@ -59,8 +69,20 @@ public class PayBookInitializerImpl implements PayBookInitializer {
              */
 
             //add everything to SecureDB. accept an entire map? TODO use byte[] instead of pojo class so no dependency
-            dbByClients.saveToDb(clientsByteMap);
-            dbBySellers.saveToDb(sellersByteMap);
+//            dbByClients.saveToDb(clientsByteMap);
+            HashSet<String> topPayingClients = clients.entrySet().stream()
+                    .sorted(
+                            Comparator.comparing(e -> e.getValue().stream()
+                                    .mapToInt(Payment::getValue).sum())
+                    )
+                    .map(Map.Entry::getKey)
+                    .limit(10)
+                    .collect(Collectors.toCollection(HashSet::new));
+            byte[] topPayingBytes = SerializationUtils.serialize(topPayingClients);
+            dbByClients.saveToDb(clients);
+//            dbBySellers.saveToDb(sellersByteMap);
+            dbBySellers.saveToDb(sellers);
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,11 +95,11 @@ public class PayBookInitializerImpl implements PayBookInitializer {
         Map<String, List<Payment>> sellers = new HashMap<>();
         for (String clientId : clients.keySet()) {
             for (Payment payment : clients.get(clientId)) {
-                if (sellers.containsKey(payment.getId())){
+                if (sellers.containsKey(payment.getId())) {
                     sellers.get(payment.getId()).add(new Payment(clientId, payment.getValue()));
                 } else {
                     List<Payment> paymentList = new ArrayList<>();
-                    paymentList.add(new Payment(clientId,payment.getValue()));
+                    paymentList.add(new Payment(clientId, payment.getValue()));
                     sellers.put(payment.getId(), paymentList);
                 }
             }
@@ -137,17 +159,17 @@ public class PayBookInitializerImpl implements PayBookInitializer {
         return clients;
     }
 
-    private Map<String, List<byte[]>> convertToByteMap(Map<String, List<Payment>> paymentMap) {
-        Map<String, List<byte[]>> result = new HashMap<>();
-        for (String key : paymentMap.keySet()) {
-            List<byte[]> byteArrayList = paymentMap.get(key).stream()
-                    .map(Payment::toBytes)
-                    .collect(Collectors.toList());
-            result.put(key,  byteArrayList);
-        }
-
-        return result;
-    }
+//    private Map<String, List<byte[]>> convertToByteMap(Map<String, List<Payment>> paymentMap) {
+//        Map<String, List<byte[]>> result = new HashMap<>();
+//        for (String key : paymentMap.keySet()) {
+//            List<byte[]> byteArrayList = paymentMap.get(key).stream()
+//                    .map(Payment::toBytes)
+//                    .collect(Collectors.toList());
+//            result.put(key, byteArrayList);
+//        }
+//
+//        return result;
+//    }
 
     private String getStringFromElement(Element element) {
         Node node = element.getFirstChild();
