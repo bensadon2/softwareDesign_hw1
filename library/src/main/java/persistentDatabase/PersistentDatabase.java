@@ -13,6 +13,7 @@ import structs.Payment;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 public class PersistentDatabase {
@@ -25,6 +26,7 @@ public class PersistentDatabase {
         this.SDBF = SBDF;
     }
 
+    // TODO: 22-May-18  it only allows one instance of SecureDB. mention it somehere?
     /**
      * Makes an instance of the requested database. TODO returns it? not sure this method is needed
      *
@@ -36,34 +38,41 @@ public class PersistentDatabase {
         // use external "open" method here
     }
 
-//    private byte[] concatList(List<byte[]> list) {
-//        byte[] res = new byte[]{};
-//        for (byte[] entry : list) {
-//            res = ArrayUtils.addAll(res, entry);
-//        }
-//        return res;
-//    }
+    private byte[] concatList(List<byte[]> list) {
+        byte[] res = new byte[]{};
+        for (byte[] entry : list) {
+            res = ArrayUtils.addAll(res, entry);
+        }
+        return res;
+    }
 
-//    public void saveToDb(Map<String, List<byte[]>> data) {
+//    public void saveToDbByte(Map<String, List<byte[]>> data) {
 //        for (Map.Entry<String, List<byte[]>> entry : data.entrySet()) {
 //            byte[] concatList = concatList(entry.getValue());
 //            try {
 //                this.secureDatabase.addEntry(entry.getKey().getBytes(), concatList);
 //            } catch (DataFormatException e) {
 //                // TODO: do something about a list too long
+//                throw new RuntimeException("bad data for db");
 //            }
 //        }
 ////        throw new UnsupportedOperationException("not implemented");
 //    }
 
     public void saveToDb(Map<String, List<Payment>> data) {
+        if (data == null) {
+            return;
+        }
         for (Map.Entry<String, List<Payment>> entry : data.entrySet()) {
-            ArrayList<Payment> serializableList = new ArrayList<>(entry.getValue());
-            byte[] bytes = SerializationUtils.serialize(serializableList);
+            List<byte[]> byteList = entry.getValue().stream().map(Payment::toBytes).collect(Collectors.toList());
+            byte[] byteArrFromList = concatList(byteList);
+//            ArrayList<Payment> serializableList = new ArrayList<>(entry.getValue());
+//            byte[] bytes = SerializationUtils.serialize(serializableList);
             try {
-                this.secureDatabase.addEntry(entry.getKey().getBytes(), bytes);
+                this.secureDatabase.addEntry(entry.getKey().getBytes(), byteArrFromList);
             } catch (DataFormatException e) {
                 // TODO: do something about a list too long
+                throw new RuntimeException("bad data for db");
             }
         }
 //        throw new UnsupportedOperationException("not implemented");
@@ -89,11 +98,13 @@ public class PersistentDatabase {
 //        }
 //    }
 
+    // TODO: 22-May-18 change this to not use serialize
     public <T extends Collection & Serializable> void saveToDb(String id, T paymentCollection) {
         try {
             this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
         } catch (DataFormatException e) {
             // TODO: something with exception
+            throw new RuntimeException("bad data for db");
         }
     }
 
@@ -132,11 +143,11 @@ public class PersistentDatabase {
         }
     }
 
-    public List<List<byte[]>> getAllValues() {
-        throw new UnsupportedOperationException("not implemented");
-    }
-
-    public List<byte[]> getAllKeys() {
-        throw new UnsupportedOperationException("not implemented");
-    }
+//    public List<List<byte[]>> getAllValues() {
+//        throw new UnsupportedOperationException("not implemented");
+//    }
+//
+//    public List<byte[]> getAllKeys() {
+//        throw new UnsupportedOperationException("not implemented");
+//    }
 }
