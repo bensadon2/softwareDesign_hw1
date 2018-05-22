@@ -6,13 +6,13 @@ import com.google.inject.name.Named;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabaseFactory;
 
+import javafx.util.Pair;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import structs.Payment;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 public class PersistentDatabase {
@@ -21,7 +21,7 @@ public class PersistentDatabase {
     private SecureDatabase secureDatabase;
 
     @Inject
-    public PersistentDatabase(@Named("SecureDatabaseFactory") SecureDatabaseFactory SBDF) {
+    public PersistentDatabase(/*@Named("SecureDatabaseFactory")*/ SecureDatabaseFactory SBDF) {
         this.SDBF = SBDF;
     }
 
@@ -69,6 +69,34 @@ public class PersistentDatabase {
 //        throw new UnsupportedOperationException("not implemented");
     }
 
+//    public void saveToDb2(Map<String, Integer> data) {
+////        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+////            byte[] value = entry.getValue().toString().getBytes();
+////            byte[] key = entry.getKey().getBytes();
+////            try {
+////                this.secureDatabase.addEntry(key, value);
+////            } catch (DataFormatException e) {
+////                // TODO: something with this exception
+////            }
+////        }
+////    }
+
+//    public <T extends Collection<String> & Serializable> void saveToDb(String id, T paymentCollection) {
+//        try {
+//            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+//        } catch (DataFormatException e) {
+//            // TODO: something with exception
+//        }
+//    }
+
+    public <T extends Collection & Serializable> void saveToDb(String id, T paymentCollection) {
+        try {
+            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+        } catch (DataFormatException e) {
+            // TODO: something with exception
+        }
+    }
+
 //    public List<byte[]> get(String id) {
 //        throw new UnsupportedOperationException("not implemented");
 //    }
@@ -76,13 +104,32 @@ public class PersistentDatabase {
     public List<Payment> get(String id) {
         try {
             byte[] res = this.secureDatabase.get(id.getBytes());
-            ArrayList<Payment> resList = SerializationUtils.deserialize(res);
-            return resList;
+            return SerializationUtils.<ArrayList<Payment>>deserialize(res);
         } catch (InterruptedException e) {
             return null;
             // TODO: something with this exception
         }
 //        throw new UnsupportedOperationException("not implemented");
+    }
+
+    public Set<Pair<String,Integer>> getSet(String id) {
+        try {
+            byte[] res = this.secureDatabase.get(id.getBytes());
+            return SerializationUtils.deserialize(res);
+        } catch (InterruptedException e) {
+            return null;
+            // TODO: something with this exception
+        }
+    }
+
+    public List<String> getIds(String id) {
+        try {
+            byte[] res = this.secureDatabase.get(id.getBytes());
+            return SerializationUtils.deserialize(res);
+        } catch (InterruptedException e) {
+            return null;
+            // TODO: something with this exception
+        }
     }
 
     public List<List<byte[]>> getAllValues() {

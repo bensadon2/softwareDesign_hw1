@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import il.ac.technion.cs.sd.pay.app.PayBookInitializer;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
+import javafx.util.Pair;
 import org.apache.commons.lang3.SerializationUtils;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -27,10 +28,19 @@ public class PayBookInitializerImpl implements PayBookInitializer {
 
     public static final String SELLERS = "sellers";
     public static final String CLIENTS = "clients";
+    public static final String QUERIES = "queries";
+
+    public static final String topClients = "3";
+    public static final String topSellers = "4";
+    public static final String topPaymentsSellers = "7";
+    public static final String topPaymentsClients = "8";
+
+
     //    public static final String TOP_PAYMENTS_CLIENTS = "top payments clients";
 //    public static final String TOP_PAYMENTS_SELLERS = "top payments sellers";
     private final PersistentDatabase dbByClients;
     private final PersistentDatabase dbBySellers;
+    private final PersistentDatabase queryDb;
 
 //    @Inject
 //    public PayBookInitializerImpl(@Named("dbByClients") PersistentDatabase dbByClients,
@@ -42,11 +52,13 @@ public class PayBookInitializerImpl implements PayBookInitializer {
 //    }
 
     @Inject
-    public PayBookInitializerImpl(PersistentDatabase dbByClients, PersistentDatabase dbBySellers) {
+    public PayBookInitializerImpl(PersistentDatabase dbByClients, PersistentDatabase dbBySellers, PersistentDatabase queryDb) {
         this.dbByClients = dbByClients;
         this.dbByClients.dbInstance(CLIENTS);
         this.dbBySellers = dbBySellers;
         this.dbBySellers.dbInstance(SELLERS);
+        this.queryDb = queryDb;
+        this.queryDb.dbInstance(QUERIES);
     }
 
 
@@ -70,15 +82,75 @@ public class PayBookInitializerImpl implements PayBookInitializer {
 
             //add everything to SecureDB. accept an entire map? TODO use byte[] instead of pojo class so no dependency
 //            dbByClients.saveToDb(clientsByteMap);
+
+//            Comparator<List<Payment>> comparator = Comparator.comparing(l -> l.stream().mapToLong(p -> p.getValue()).sum());
+
+            // Primary compare sum of purchases, secondary compare ID
+            // TODO: might need to reverse sorting order in one or more categories, and maybe the order between them
+            // TODO: It is possible to reverse order by calling .reverse() on the comparator, as long as it DOESN'T use lambdas
+            Comparator<Map.Entry<String, List<Payment>>> comparator =
+                    Comparator.comparing(e -> e.getValue().stream()
+                            .mapToLong(Payment::getValue).sum());
+            comparator = comparator.thenComparing(Map.Entry::getKey);
+
+            // TOP PAYING CLIENTS
             HashSet<String> topPayingClients = clients.entrySet().stream()
                     .sorted(
-                            Comparator.comparing(e -> e.getValue().stream()
-                                    .mapToInt(Payment::getValue).sum())
+                            comparator
+//                            (e1, e2) -> e1.getValue().stream().mapToLong(p -> p.getValue()).sum().compareTo(
+//                                    e2.getValue().stream().mapToLong(p -> p.getValue()).sum())
                     )
                     .map(Map.Entry::getKey)
                     .limit(10)
                     .collect(Collectors.toCollection(HashSet::new));
-            byte[] topPayingBytes = SerializationUtils.serialize(topPayingClients);
+            queryDb.saveToDb(topClients, topPayingClients);
+
+            // TOP EARNING SELLERS
+            HashSet<String> topEarningSellers = sellers.entrySet().stream()
+                    .sorted(comparator)
+                    .limit(10)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toCollection(HashSet::new));
+            queryDb.saveToDb(topSellers, topEarningSellers);
+
+            // TODO: Highest payments attached to their sellers and attached to their buyers (7, 8)
+
+            Map<String, Integer> clientsWithTopPayments = clients.entrySet().stream()
+
+//                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+//                    .sorted(Comparator.comparing(AbstractMap.SimpleEntry::getValue))
+
+                    .sorted(Comparator.comparing(this::getHighestPayment))
+                    .limit(10)
+                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+                    // TODO: mapping can be before or after the limit, depends on what takes longer - "getHighestPayment"
+                    // TODO: or the mapping itself
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            HashSet<Pair<String, Integer>> clientsWithTopPaymentsSet = clientsWithTopPayments.entrySet().stream()
+                    .map(e -> new Pair<>(e.getKey(), e.getValue()))
+                    .collect(Collectors.toCollection(HashSet::new));
+
+            queryDb.saveToDb(topPaymentsClients, clientsWithTopPaymentsSet);
+
+            Map<String, Integer> sellersWithTopPayments = sellers.entrySet().stream()
+
+//                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+//                    .sorted(Comparator.comparing(AbstractMap.SimpleEntry::getValue))
+
+                    .sorted(Comparator.comparing(this::getHighestPayment))
+                    .limit(10)
+                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+                    // TODO: mapping can be before or after the limit, depends on what takes longer - "getHighestPayment"
+                    // TODO: or the mapping itself
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            HashSet<Pair<String, Integer>> sellersWithTopPaymentsSet = sellersWithTopPayments.entrySet().stream()
+                    .map(e -> new Pair<>(e.getKey(), e.getValue()))
+                    .collect(Collectors.toCollection(HashSet::new));
+
+            queryDb.saveToDb(topPaymentsSellers, sellersWithTopPaymentsSet);
+
             dbByClients.saveToDb(clients);
 //            dbBySellers.saveToDb(sellersByteMap);
             dbBySellers.saveToDb(sellers);
@@ -88,6 +160,21 @@ public class PayBookInitializerImpl implements PayBookInitializer {
             e.printStackTrace();
         }
 
+    }
+
+    // TODO: this is returning Integer because that's the end result expected by the reader :/
+    private Integer getHighestPayment(Map.Entry<String, List<Payment>> entry) {
+        try {
+            List<Integer> res = entry.getValue().stream()
+                    .sorted(Comparator.comparing(Payment::getValue))
+                    .limit(1)
+                    .mapToInt(Payment::getValue)
+                    .boxed()
+                    .collect(Collectors.toList());
+            return res.get(0);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private Map<String, List<Payment>> buildSellerMap(Map<String, List<Payment>> clients) {
