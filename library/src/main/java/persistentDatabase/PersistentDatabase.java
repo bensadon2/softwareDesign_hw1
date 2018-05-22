@@ -11,6 +11,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import structs.Payment;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class PersistentDatabase {
     }
 
     // TODO: 22-May-18  it only allows one instance of SecureDB. mention it somehere?
+
     /**
      * Makes an instance of the requested database. TODO returns it? not sure this method is needed
      *
@@ -64,15 +66,20 @@ public class PersistentDatabase {
             return;
         }
         for (Map.Entry<String, List<Payment>> entry : data.entrySet()) {
-            List<byte[]> byteList = entry.getValue().stream().map(Payment::toBytes).collect(Collectors.toList());
-            byte[] byteArrFromList = concatList(byteList);
+            try {
+//            List<byte[]> byteList = entry.getValue().stream().map(Payment::toBytes).collect(Collectors.toList());
+//            byte[] byteArrFromList = concatList(byteList);
+                byte[] byteArrFromList = Payment.payListToBytes(entry.getValue());
 //            ArrayList<Payment> serializableList = new ArrayList<>(entry.getValue());
 //            byte[] bytes = SerializationUtils.serialize(serializableList);
-            try {
+
                 this.secureDatabase.addEntry(entry.getKey().getBytes(), byteArrFromList);
             } catch (DataFormatException e) {
+                e.printStackTrace();
                 // TODO: do something about a list too long
                 throw new RuntimeException("bad data for db");
+            } catch (IOException e) {
+                throw new RuntimeException("IO exception when serializing for saveToDb");
             }
         }
 //        throw new UnsupportedOperationException("not implemented");
@@ -99,10 +106,20 @@ public class PersistentDatabase {
 //    }
 
     // TODO: 22-May-18 change this to not use serialize
-    public <T extends Collection & Serializable> void saveToDb(String id, T paymentCollection) {
+//    public <T extends Collection & Serializable> void saveToDb(String id, T paymentCollection) {
+//        try {
+//            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+//        } catch (DataFormatException e) {
+//            // TODO: something with exception
+//            throw new RuntimeException("bad data for db");
+//        }
+//    }
+
+    public void saveToDb(String id, Collection paymentCollection) {
         try {
-            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
-        } catch (DataFormatException e) {
+            byte[] bytes = Payment.payListToBytes(paymentCollection);
+//            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+        } catch (Exception e) {
             // TODO: something with exception
             throw new RuntimeException("bad data for db");
         }
@@ -115,23 +132,25 @@ public class PersistentDatabase {
     public List<Payment> get(String id) {
         try {
             byte[] res = this.secureDatabase.get(id.getBytes());
-            return SerializationUtils.<ArrayList<Payment>>deserialize(res);
-        } catch (InterruptedException e) {
+            ArrayList<Payment> result = Payment.bytesToPayList(res);
+            return result;
+//            return SerializationUtils.<ArrayList<Payment>>deserialize(res);
+        } catch (Exception e) {
             return null;
             // TODO: something with this exception
         }
 //        throw new UnsupportedOperationException("not implemented");
     }
 
-    public Set<Pair<String,Integer>> getSet(String id) {
-        try {
-            byte[] res = this.secureDatabase.get(id.getBytes());
-            return SerializationUtils.deserialize(res);
-        } catch (InterruptedException e) {
-            return null;
-            // TODO: something with this exception
-        }
-    }
+//    public Set<Pair<String,Integer>> getSet(String id) {
+//        try {
+//            byte[] res = this.secureDatabase.get(id.getBytes());
+//            return SerializationUtils.deserialize(res);
+//        } catch (InterruptedException e) {
+//            return null;
+//            // TODO: something with this exception
+//        }
+//    }
 
     public List<String> getIds(String id) {
         try {

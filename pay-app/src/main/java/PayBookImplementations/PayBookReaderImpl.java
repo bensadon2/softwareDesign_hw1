@@ -100,22 +100,30 @@ public class PayBookReaderImpl implements PayBookReader {
 
     @Override
     public Map<String, Integer> getBiggestPaymentsToSellers() {
-        Set<Pair<String, Integer>> results = this.queryDb.getSet(topPaymentsSellers);
-        Map<String, Integer> res = new HashMap<>();
-        for (Pair<String, Integer> pair : results) {
-            res.put(pair.getKey(), pair.getValue());
-        }
-        return res;
+        List<Payment> res = this.queryDb.get(topPaymentsSellers);
+        Map<String, Integer> result = res.stream()
+                .collect(Collectors.toMap(Payment::getId, Payment::getValue));
+        return result;
+//        Set<Pair<String, Integer>> results = this.queryDb.getSet(topPaymentsSellers);
+//        Map<String, Integer> res = new HashMap<>();
+//        for (Pair<String, Integer> pair : results) {
+//            res.put(pair.getKey(), pair.getValue());
+//        }
+//        return res;
     }
 
     @Override
     public Map<String, Integer> getBiggestPaymentsFromClients() {
-        Set<Pair<String, Integer>> results = this.queryDb.getSet(topPaymentsClients);
-        Map<String, Integer> res = new HashMap<>();
-        for (Pair<String, Integer> pair : results) {
-            res.put(pair.getKey(), pair.getValue());
-        }
-        return res;
+        List<Payment> res = this.queryDb.get(topPaymentsClients);
+        Map<String, Integer> result = res.stream()
+                .collect(Collectors.toMap(Payment::getId, Payment::getValue));
+        return result;
+//        Set<Pair<String, Integer>> results = this.queryDb.getSet(topPaymentsClients);
+//        Map<String, Integer> res = new HashMap<>();
+//        for (Pair<String, Integer> pair : results) {
+//            res.put(pair.getKey(), pair.getValue());
+//        }
+//        return res;
     }
 
     private List<Payment> getClientSellerPayments(String clientId, String sellerId) {
@@ -133,19 +141,19 @@ public class PayBookReaderImpl implements PayBookReader {
      * @param persistentDb the db to perform the operation on.
      * @return a map with the keys of the db, with their respective sums as values.
      */
-    private Map<String, Long> sumMap(PersistentDatabase persistentDb) {
-        List<byte[]> idList = persistentDb.getAllKeys();
-        Map<String, Long> map = new HashMap<>();
-        for (byte[] id : idList) {
-            String idStr = new String(id);
-//            List<byte[]> paymentsBytes = persistentDb.get(idStr);
-//            long sum = paymentsBytes.stream().mapToLong(bytes -> (new Payment(bytes)).getValue()).sum();
-            List<Payment> payments = persistentDb.get(idStr);
-            long sum = payments.stream().mapToLong(payment -> payment.getValue()).sum();
-            map.put(idStr, sum);
-        }
-        return map;
-    }
+//    private Map<String, Long> sumMap(PersistentDatabase persistentDb) {
+//        List<byte[]> idList = persistentDb.getAllKeys();
+//        Map<String, Long> map = new HashMap<>();
+//        for (byte[] id : idList) {
+//            String idStr = new String(id);
+////            List<byte[]> paymentsBytes = persistentDb.get(idStr);
+////            long sum = paymentsBytes.stream().mapToLong(bytes -> (new Payment(bytes)).getValue()).sum();
+//            List<Payment> payments = persistentDb.get(idStr);
+//            long sum = payments.stream().mapToLong(payment -> payment.getValue()).sum();
+//            map.put(idStr, sum);
+//        }
+//        return map;
+//    }
 
     /**
      * returns the top 10 IDs and their sums (descending order). sorting is by values, then keys

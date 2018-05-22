@@ -2,7 +2,10 @@ package structs;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class Payment implements Serializable {
     private Integer value;
@@ -56,8 +59,23 @@ public class Payment implements Serializable {
      * @return byte[] representing the payment. first byte is amount, the rest is the id where is char is a byte.
      * i.e result is [amount, s, o, m, e, i, d] for example.
      */
-    public byte[] toBytes() {
-        byte[] valueByteList = new byte[]{value.byteValue()};
-        return ArrayUtils.addAll(valueByteList, id.getBytes());
+//    public byte[] toBytes() {
+//        byte[] valueByteList = new byte[]{value.byteValue()};
+//        return ArrayUtils.addAll(valueByteList, id.getBytes());
+//    }
+
+    public static /*<T extends Collection & Serializable>*/ byte[] payListToBytes(/*T*/Collection payList) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutput out = new ObjectOutputStream(bos)) {
+            out.writeObject(payList);
+            return bos.toByteArray();
+        }
+    }
+
+    public static ArrayList<Payment> bytesToPayList(byte[] bytes) throws IOException, ClassNotFoundException {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+             ObjectInput in = new ObjectInputStream(bis)) {
+            return (ArrayList<Payment>) in.readObject();
+        }
     }
 }

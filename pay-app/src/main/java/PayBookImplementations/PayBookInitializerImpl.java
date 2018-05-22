@@ -113,43 +113,55 @@ public class PayBookInitializerImpl implements PayBookInitializer {
                     .collect(Collectors.toCollection(HashSet::new));
             queryDb.saveToDb(topSellers, topEarningSellers);
 
-            // TODO: Highest payments attached to their sellers and attached to their buyers (7, 8)
-
-            Map<String, Integer> clientsWithTopPayments = clients.entrySet().stream()
-
-//                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
-//                    .sorted(Comparator.comparing(AbstractMap.SimpleEntry::getValue))
-
+            ArrayList<Payment> sellerTopPayments = sellers.entrySet().stream()
                     .sorted(Comparator.comparing(this::getHighestPayment))
                     .limit(10)
-                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
-                    // TODO: mapping can be before or after the limit, depends on what takes longer - "getHighestPayment"
-                    // TODO: or the mapping itself
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .map(e -> new Payment(e.getKey(), getHighestPayment(e)))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            queryDb.saveToDb(topPaymentsSellers, sellerTopPayments);
 
-            HashSet<Pair<String, Integer>> clientsWithTopPaymentsSet = clientsWithTopPayments.entrySet().stream()
-                    .map(e -> new Pair<>(e.getKey(), e.getValue()))
-                    .collect(Collectors.toCollection(HashSet::new));
-
-            queryDb.saveToDb(topPaymentsClients, clientsWithTopPaymentsSet);
-
-            Map<String, Integer> sellersWithTopPayments = sellers.entrySet().stream()
-
-//                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
-//                    .sorted(Comparator.comparing(AbstractMap.SimpleEntry::getValue))
-
+            ArrayList<Payment> clientTopPayments = clients.entrySet().stream()
                     .sorted(Comparator.comparing(this::getHighestPayment))
                     .limit(10)
-                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
-                    // TODO: mapping can be before or after the limit, depends on what takes longer - "getHighestPayment"
-                    // TODO: or the mapping itself
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .map(e -> new Payment(e.getKey(), getHighestPayment(e)))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            queryDb.saveToDb(topPaymentsClients, clientTopPayments);
 
-            HashSet<Pair<String, Integer>> sellersWithTopPaymentsSet = sellersWithTopPayments.entrySet().stream()
-                    .map(e -> new Pair<>(e.getKey(), e.getValue()))
-                    .collect(Collectors.toCollection(HashSet::new));
+//            Map<String, Integer> clientsWithTopPayments = clients.entrySet().stream()
+//
+////                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+////                    .sorted(Comparator.comparing(AbstractMap.SimpleEntry::getValue))
+//
+//                    .sorted(Comparator.comparing(this::getHighestPayment))
+//                    .limit(10)
+//                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+//                    // TODO: mapping can be before or after the limit, depends on what takes longer - "getHighestPayment"
+//                    // TODO: or the mapping itself
+//                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//
+//            HashSet<Pair<String, Integer>> clientsWithTopPaymentsSet = clientsWithTopPayments.entrySet().stream()
+//                    .map(e -> new Pair<>(e.getKey(), e.getValue()))
+//                    .collect(Collectors.toCollection(HashSet::new));
 
-            queryDb.saveToDb(topPaymentsSellers, sellersWithTopPaymentsSet);
+//            queryDb.saveToDb(topPaymentsClients, clientsWithTopPaymentsSet);
+
+//            Map<String, Integer> sellersWithTopPayments = sellers.entrySet().stream()
+//
+////                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+////                    .sorted(Comparator.comparing(AbstractMap.SimpleEntry::getValue))
+//
+//                    .sorted(Comparator.comparing(this::getHighestPayment))
+//                    .limit(10)
+//                    .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), getHighestPayment(e)))
+//                    // TODO: mapping can be before or after the limit, depends on what takes longer - "getHighestPayment"
+//                    // TODO: or the mapping itself
+//                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//
+//            HashSet<Pair<String, Integer>> sellersWithTopPaymentsSet = sellersWithTopPayments.entrySet().stream()
+//                    .map(e -> new Pair<>(e.getKey(), e.getValue()))
+//                    .collect(Collectors.toCollection(HashSet::new));
+//
+//            queryDb.saveToDb(topPaymentsSellers, sellersWithTopPaymentsSet);
 
             dbByClients.saveToDb(clients);
 //            dbBySellers.saveToDb(sellersByteMap);
