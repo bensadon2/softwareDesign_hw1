@@ -54,8 +54,24 @@ public class OurTests {
     }
 
     @Test
-    public void testMedium() throws Exception {
+    public void testMedium2() throws Exception {
         PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
-        System.out.println("lol");
+        assertTrue(reader.paidTo("151", "Poobar"));
+        assertEquals(OptionalDouble.of(3), reader.getPayment("151", "Poobar"));
+        assertFalse(reader.paidTo("414", "Poobar"));
+        assertEquals(OptionalDouble.of(13), reader.getPayment("884", "123"));
+        assertEquals(OptionalDouble.of(7), reader.getPayment("763", "Noobar"));
+    }
+
+    @Test
+    public void testMedium3() throws FileNotFoundException {
+        PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
+        assertEquals(Optional.of("123"), reader.getBiggestClient("Foobar"));
+        assertEquals(Optional.of("884"), reader.getBiggestClient("123"));
+        assertEquals(Optional.of("444"), reader.getBiggestClient("171"));
+        assertEquals(Optional.of("313"), reader.getBiggestClient("Poobar"));
+//        assertEquals(, reader.getRichestSellers());
+        // TODO: 24-May-18 add some query for this - number 4
+
     }
 }
