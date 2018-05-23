@@ -1,0 +1,244 @@
+<Root>
+    <Client Id="123">
+        <Payment>
+            <Id>Foobar</Id>
+            <Amount>10</Amount>
+        </Payment>
+        <Payment>
+            <Id>Moobar</Id>
+            <Amount>3</Amount>
+        </Payment>
+    </Client>
+    <Client Id="123">
+        <Payment>
+            <Id>Boobar</Id>
+            <Amount>5</Amount>
+        </Payment>
+    </Client>
+    <Client Id="445">
+        <Payment>
+            <Id>Foobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+    </Client>
+    <Client Id="884">
+        <Payment>
+            <Id>123</Id>
+            <Amount>5</Amount>
+        </Payment>
+        <Payment>
+            <Id>123</Id>
+            <Amount>8</Amount>
+        </Payment>
+    </Client>
+    <Client Id="664">
+        <Payment>
+            <Id>Boobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+        <Payment>
+            <Id>Moobar</Id>
+            <Amount>9</Amount>
+        </Payment>
+    </Client>
+    <Client Id="474">
+        <Payment>
+            <Id>664</Id>
+            <Amount>4</Amount>
+        </Payment>
+        <Payment>
+            <Id>123</Id>
+            <Amount>8</Amount>
+        </Payment>
+    </Client>
+    <Client Id="763">
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>5</Amount>
+        </Payment>
+        <Payment>
+            <Id>Noobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+    </Client>
+    <Client Id="917">
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>3</Amount>
+        </Payment>
+    </Client>
+    <Client Id="818">
+        <Payment>
+            <Id>Foobar</Id>
+            <Amount>10</Amount>
+        </Payment>
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>8</Amount>
+        </Payment>
+    </Client>
+    <Client Id="181">
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>6</Amount>
+        </Payment>
+        <Payment>
+            <Id>Moobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+    </Client>
+    <Client Id="616">
+        <Payment>
+            <Id>181</Id>
+            <Amount>2</Amount>
+        </Payment>
+        <Payment>
+            <Id>Poobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+    </Client>
+    <Client Id="515">
+        <Payment>
+            <Id>Poobar</Id>
+            <Amount>4</Amount>
+        </Payment>
+        <Payment>
+            <Id>616</Id>
+            <Amount>8</Amount>
+        </Payment>
+    </Client>
+    <Client Id="414">
+        <Payment>
+            <Id>Scoobar</Id>
+            <Amount>5</Amount>
+        </Payment>
+        <Payment>
+            <Id>181</Id>
+            <Amount>9</Amount>
+        </Payment>
+    </Client>
+    <Client Id="313">
+        <Payment>
+            <Id>Poobar</Id>
+            <Amount>10</Amount>
+        </Payment>
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>6</Amount>
+        </Payment>
+    </Client>
+    <Client Id="212">
+        <Payment>
+            <Id>515</Id>
+            <Amount>3</Amount>
+        </Payment>
+        <Payment>
+            <Id>313</Id>
+            <Amount>6</Amount>
+        </Payment>
+    </Client>
+    <Client Id="111">
+        <Payment>
+            <Id>Foobar</Id>
+            <Amount>8</Amount>
+        </Payment>
+        <Payment>
+            <Id>181</Id>
+            <Amount>4</Amount>
+        </Payment>
+    </Client>
+    <Client Id="121">
+        <Payment>
+            <Id>Poobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+        <Payment>
+            <Id>212</Id>
+            <Amount>9</Amount>
+        </Payment>
+    </Client>
+    <Client Id="131">
+        <Payment>
+            <Id>Moobar</Id>
+            <Amount>5</Amount>
+        </Payment>
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>2</Amount>
+        </Payment>
+    </Client>
+    <Client Id="414">
+        <Payment>
+            <Id>111</Id>
+            <Amount>8</Amount>
+        </Payment>
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+    </Client>
+    <Client Id="151">
+        <Payment>
+            <Id>Foobar</Id>
+            <Amount>7</Amount>
+        </Payment>
+        <Payment>
+            <Id>Poobar</Id>
+            <Amount>3</Amount>
+        </Payment>
+    </Client>
+    <Client Id="161">
+        <Payment>
+            <Id>414</Id>
+            <Amount>6</Amount>
+        </Payment>
+        <Payment>
+            <Id>212</Id>
+            <Amount>6</Amount>
+        </Payment>
+    </Client>
+    <Client Id="171">
+        <Payment>
+            <Id>Poobar</Id>
+            <Amount>6</Amount>
+        </Payment>
+        <Payment>
+            <Id>Moobar</Id>
+            <Amount>9</Amount>
+        </Payment>
+    </Client>
+    <Client Id="181">
+        <Payment>
+            <Id>151</Id>
+            <Amount>8</Amount>
+        </Payment>
+        <Payment>
+            <Id>Coobar</Id>
+            <Amount>2</Amount>
+        </Payment>
+    </Client>
+    <Client Id="191">
+        <Payment>
+            <Id>414</Id>
+            <Amount>9</Amount>
+        </Payment>
+        <Payment>
+            <Id>Moobar</Id>
+            <Amount>4</Amount>
+        </Payment>
+    </Client>
+    <Client Id="444">
+        <Payment>
+            <Id>151</Id>
+            <Amount>7</Amount>
+        </Payment>
+        <Payment>
+            <Id>171</Id>
+            <Amount>9</Amount>
+        </Payment>
+    </Client>
+</Root>

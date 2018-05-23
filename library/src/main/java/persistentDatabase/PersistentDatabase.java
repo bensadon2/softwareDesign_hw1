@@ -17,6 +17,10 @@ public class PersistentDatabase {
     private SecureDatabase idSecureDatabase;
     private SecureDatabase amountSecureDatabase;
 
+    protected PersistentDatabase() {
+        this.SDBF = null;
+    }
+
     @Inject
     public PersistentDatabase(/*@Named("SecureDatabaseFactory")*/ SecureDatabaseFactory SBDF) {
         this.SDBF = SBDF;
@@ -34,14 +38,6 @@ public class PersistentDatabase {
         this.amountSecureDatabase = this.SDBF.open(dbName + "Amount");
 //        throw new UnsupportedOperationException("not implemented");
         // use external "open" method here
-    }
-
-    private byte[] concatList(List<byte[]> list) {
-        byte[] res = new byte[]{};
-        for (byte[] entry : list) {
-            res = ArrayUtils.addAll(res, entry);
-        }
-        return res;
     }
 
 //    public void saveToDbByte(Map<String, List<byte[]>> data) {

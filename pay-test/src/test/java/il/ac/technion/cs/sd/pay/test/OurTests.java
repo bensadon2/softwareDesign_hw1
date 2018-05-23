@@ -30,8 +30,16 @@ public class OurTests {
         return injector.getInstance(PayBookReader.class);
     }
 
+    private static PayBookReader setupAndGetReaderInitializer(String fileName) throws FileNotFoundException {
+        String fileContents =
+                new Scanner(new File(OurTests.class.getResource(fileName).getFile())).useDelimiter("\\Z").next();
+        Injector injector = Guice.createInjector(new PayBookModule(), new InitializerModule());
+        injector.getInstance(PayBookInitializer.class).setup(fileContents);
+        return injector.getInstance(PayBookReader.class);
+    }
+
     @Test
-    public void testSimple() {
+    public void testSimple() throws Exception {
         PayBookReader reader = setupAndGetReader();
         Map<String, Integer> res1 = new HashMap<>();
         res1.put("Moobar", 7);
@@ -43,9 +51,11 @@ public class OurTests {
         assertEquals(1.0, reader.getPayment("paidTo", "joey").getAsDouble(), 0.00001);
         assertEquals(3.0, reader.getPayment("paidTo", "monica").getAsDouble(), 0.00001);
         assertFalse(reader.getPayment("paidTo", "pheobe").isPresent());
-//        Mockito.when(mock.getQueryAnswer(PayBookInitializerImpl.topClients)).thenReturn(Arrays.asList("Foobar", "Lol"));
-//        assertEquals(Arrays.asList("Foobar", "Boobar", "Moobar"), reader.getRichestSellers());
-//        assertEquals(OptionalDouble.of(10.0), reader.getPayment("123", "Foobar"));
-//        assertEquals(Optional.empty(), reader.getFavoriteSeller("124"));
+    }
+
+    @Test
+    public void testMedium() throws Exception {
+        PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
+        System.out.println("lol");
     }
 }

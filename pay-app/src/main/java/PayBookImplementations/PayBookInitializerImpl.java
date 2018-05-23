@@ -13,6 +13,7 @@ import structs.Payment;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.Console;
 import java.io.StringReader;
 import java.util.*;
 import java.util.function.Function;
@@ -227,7 +228,8 @@ public class PayBookInitializerImpl implements PayBookInitializer {
         for (int i = 0; i < nodes.getLength(); i++) {
             Element clientElement = (Element) nodes.item(i);
             NodeList payments = clientElement.getElementsByTagName("Payment");
-            String clientStr = getStringFromElement(clientElement);
+//            String clientStr = getStringFromElement(clientElement);
+            String clientStr = clientElement.getAttribute("Id");
 
             //go over sellers for a client
             for (int j = 0; j < payments.getLength(); j++) {
@@ -238,7 +240,7 @@ public class PayBookInitializerImpl implements PayBookInitializer {
                 Element sellerElement = (Element) sellerID.item(0);
                 Element amountElement = (Element) amount.item(0);
                 Payment payment = new Payment(getStringFromElement(sellerElement),
-                        Integer.parseInt(getStringFromElement(amountElement)));
+                        Integer.valueOf(getStringFromElement(amountElement).replaceAll("[^\\d]", "")));
 
                 // if already have payment for this seller, add instead of creating new entry
                 if (clients.containsKey(clientStr)) {
@@ -280,7 +282,9 @@ public class PayBookInitializerImpl implements PayBookInitializer {
     private String getStringFromElement(Element element) {
         Node node = element.getFirstChild();
         if (node instanceof CharacterData) {
-            return ((CharacterData) node).getData();
+//            System.out.println("this:" + ((CharacterData) node).getData().trim());
+            String trimmed = ((CharacterData) node).getData().trim();
+            return trimmed;
         }
         System.out.println("shouldn't have gotten here");
         return "";
