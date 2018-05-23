@@ -1,26 +1,23 @@
 package persistentDatabase;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabaseFactory;
 
-import javafx.util.Pair;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import structs.Payment;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 public class PersistentDatabase {
 
     private final SecureDatabaseFactory SDBF;
-    private SecureDatabase secureDatabase;
+    //    private SecureDatabase idSecureDatabase;
+    private SecureDatabase idSecureDatabase;
+    private SecureDatabase amountSecureDatabase;
 
     @Inject
     public PersistentDatabase(/*@Named("SecureDatabaseFactory")*/ SecureDatabaseFactory SBDF) {
@@ -35,7 +32,8 @@ public class PersistentDatabase {
      * @param dbName - the requested database name
      */
     public void dbInstance(String dbName) {
-        this.secureDatabase = this.SDBF.open(dbName);
+        this.idSecureDatabase = this.SDBF.open(dbName + "Id");
+        this.amountSecureDatabase = this.SDBF.open(dbName + "Amount");
 //        throw new UnsupportedOperationException("not implemented");
         // use external "open" method here
     }
@@ -52,7 +50,7 @@ public class PersistentDatabase {
 //        for (Map.Entry<String, List<byte[]>> entry : data.entrySet()) {
 //            byte[] concatList = concatList(entry.getValue());
 //            try {
-//                this.secureDatabase.addEntry(entry.getKey().getBytes(), concatList);
+//                this.idSecureDatabase.addEntry(entry.getKey().getBytes(), concatList);
 //            } catch (DataFormatException e) {
 //                // TODO: do something about a list too long
 //                throw new RuntimeException("bad data for db");
@@ -65,21 +63,25 @@ public class PersistentDatabase {
         if (data == null) {
             return;
         }
+        StringBuilder payemntIdsStrBuilder = new StringBuilder();
+        StringBuilder paymentAmountsStrBuilder = new StringBuilder();
         for (Map.Entry<String, List<Payment>> entry : data.entrySet()) {
             try {
-//            List<byte[]> byteList = entry.getValue().stream().map(Payment::toBytes).collect(Collectors.toList());
-//            byte[] byteArrFromList = concatList(byteList);
-                byte[] byteArrFromList = Payment.payListToBytes(entry.getValue());
-//            ArrayList<Payment> serializableList = new ArrayList<>(entry.getValue());
-//            byte[] bytes = SerializationUtils.serialize(serializableList);
+                for (Payment payment : entry.getValue()) {  // build seperate lists, pad with 0 between to get 0-bytes.
+                    payemntIdsStrBuilder.append(payment.getId()).append('\0');
+                    paymentAmountsStrBuilder.append(payment.getValue()).append('\0');
+                }
+//                List<byte[]> byteList = entry.getValue().stream().map(Payment::toBytes).collect(Collectors.toList());
+//                byte[] byteArrFromList = concatList(byteList);
+//                byte[] byteArrFromList = Payment.payListToBytes(entry.getValue());
+//                ArrayList<Payment> serializableList = new ArrayList<>(entry.getValue());
+//                byte[] bytes = SerializationUtils.serialize(serializableList);
 
-                this.secureDatabase.addEntry(entry.getKey().getBytes(), byteArrFromList);
+                this.idSecureDatabase.addEntry(entry.getKey().getBytes(), payemntIdsStrBuilder.toString().getBytes());
+                this.amountSecureDatabase.addEntry(entry.getKey().getBytes(), paymentAmountsStrBuilder.toString().getBytes());
             } catch (DataFormatException e) {
                 e.printStackTrace();
-                // TODO: do something about a list too long
                 throw new RuntimeException("bad data for db");
-            } catch (IOException e) {
-                throw new RuntimeException("IO exception when serializing for saveToDb");
             }
         }
 //        throw new UnsupportedOperationException("not implemented");
@@ -90,7 +92,7 @@ public class PersistentDatabase {
 ////            byte[] value = entry.getValue().toString().getBytes();
 ////            byte[] key = entry.getKey().getBytes();
 ////            try {
-////                this.secureDatabase.addEntry(key, value);
+////                this.idSecureDatabase.addEntry(key, value);
 ////            } catch (DataFormatException e) {
 ////                // TODO: something with this exception
 ////            }
@@ -99,7 +101,7 @@ public class PersistentDatabase {
 
 //    public <T extends Collection<String> & Serializable> void saveToDb(String id, T paymentCollection) {
 //        try {
-//            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+//            this.idSecureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
 //        } catch (DataFormatException e) {
 //            // TODO: something with exception
 //        }
@@ -108,7 +110,7 @@ public class PersistentDatabase {
     // TODO: 22-May-18 change this to not use serialize
 //    public <T extends Collection & Serializable> void saveToDb(String id, T paymentCollection) {
 //        try {
-//            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+//            this.idSecureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
 //        } catch (DataFormatException e) {
 //            // TODO: something with exception
 //            throw new RuntimeException("bad data for db");
@@ -116,11 +118,19 @@ public class PersistentDatabase {
 //    }
 
     public void saveToDb(String id, Collection paymentCollection) {
+        StringBuilder payemntIdsStrBuilder = new StringBuilder();
+        StringBuilder paymentAmountsStrBuilder = new StringBuilder();
+        for (Object o : paymentCollection) {
+            Payment payment = (Payment) o;
+            payemntIdsStrBuilder.append(payment.getId()).append('\0');
+            paymentAmountsStrBuilder.append(payment.getValue()).append('\0');
+        }
         try {
-            byte[] bytes = Payment.payListToBytes(paymentCollection);
-//            this.secureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
+            this.idSecureDatabase.addEntry(id.getBytes(), payemntIdsStrBuilder.toString().getBytes());
+            this.amountSecureDatabase.addEntry(id.getBytes(), paymentAmountsStrBuilder.toString().getBytes());
+//            byte[] bytes = Payment.payListToBytes(paymentCollection);
+//            this.idSecureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
         } catch (Exception e) {
-            // TODO: something with exception
             throw new RuntimeException("bad data for db");
         }
     }
@@ -131,20 +141,38 @@ public class PersistentDatabase {
 
     public List<Payment> get(String id) {
         try {
-            byte[] res = this.secureDatabase.get(id.getBytes());
-            ArrayList<Payment> result = Payment.bytesToPayList(res);
+            byte[] resIdBytes = this.idSecureDatabase.get(id.getBytes());
+            byte[] resAmountBytes = this.amountSecureDatabase.get(id.getBytes());
+//            ArrayList<Payment> result = Payment.bytesToPayList(resIdBytes);
+            ArrayList<Payment> result = new ArrayList<>();
+
+            String idStr = new String(resIdBytes);
+            String amountStr = new String(resAmountBytes);
+            String[] idStrings = idStr.split("\0");
+            String[] amountStrings = amountStr.split("\0");
+            if (idStrings.length != amountStrings.length) {
+                throw new IllegalStateException("got different size lists of amounts and IDs in DB entry");
+            }
+
+            for (int i = 0; i < idStrings.length; i++) {
+                result.add(new Payment(idStrings[0], Integer.valueOf(amountStrings[i])));
+            }
+
             return result;
-//            return SerializationUtils.<ArrayList<Payment>>deserialize(res);
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            System.out.println("PersistentDatabase.get found no matching element for \"" + id + "\"");
             return null;
-            // TODO: something with this exception
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.out.println("got InterruptedException from SecureDatabase.get");
+            return null;
         }
-//        throw new UnsupportedOperationException("not implemented");
     }
 
 //    public Set<Pair<String,Integer>> getSet(String id) {
 //        try {
-//            byte[] res = this.secureDatabase.get(id.getBytes());
+//            byte[] res = this.idSecureDatabase.get(id.getBytes());
 //            return SerializationUtils.deserialize(res);
 //        } catch (InterruptedException e) {
 //            return null;
@@ -154,7 +182,7 @@ public class PersistentDatabase {
 
     public List<String> getIds(String id) {
         try {
-            byte[] res = this.secureDatabase.get(id.getBytes());
+            byte[] res = this.idSecureDatabase.get(id.getBytes());
             return SerializationUtils.deserialize(res);
         } catch (InterruptedException e) {
             return null;
