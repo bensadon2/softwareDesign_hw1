@@ -11,7 +11,7 @@ public class Payment implements Serializable {
     private Integer value;
     private String id;
 
-    public int getValue() {
+    public Integer getValue() {
         return value;
     }
 
@@ -64,18 +64,37 @@ public class Payment implements Serializable {
 //        return ArrayUtils.addAll(valueByteList, id.getBytes());
 //    }
 
-    public static /*<T extends Collection & Serializable>*/ byte[] payListToBytes(/*T*/Collection payList) throws IOException {
+/*    public static *//*<T extends Collection & Serializable>*//* byte[] payListToBytes(*//*T*//*Collection payList) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutput out = new ObjectOutputStream(bos)) {
             out.writeObject(payList);
             return bos.toByteArray();
         }
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Payment payment = (Payment) o;
+
+        if (!getValue().equals(payment.getValue())) return false;
+        return getId().equals(payment.getId());
     }
 
-    public static ArrayList<Payment> bytesToPayList(byte[] bytes) throws IOException, ClassNotFoundException {
+    @Override
+    public int hashCode() {
+        int result = getValue().hashCode();
+        result = 31 * result + getId().hashCode();
+        return result;
+    }
+
+    /*public static ArrayList<Payment> bytesToPayList(byte[] bytes) throws IOException, ClassNotFoundException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInput in = new ObjectInputStream(bis)) {
             return (ArrayList<Payment>) in.readObject();
+
         }
-    }
+    }*/
 }

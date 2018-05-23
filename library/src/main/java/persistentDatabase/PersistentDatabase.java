@@ -63,9 +63,9 @@ public class PersistentDatabase {
         if (data == null) {
             return;
         }
-        StringBuilder payemntIdsStrBuilder = new StringBuilder();
-        StringBuilder paymentAmountsStrBuilder = new StringBuilder();
         for (Map.Entry<String, List<Payment>> entry : data.entrySet()) {
+            StringBuilder payemntIdsStrBuilder = new StringBuilder();
+            StringBuilder paymentAmountsStrBuilder = new StringBuilder();
             try {
                 for (Payment payment : entry.getValue()) {  // build seperate lists, pad with 0 between to get 0-bytes.
                     payemntIdsStrBuilder.append(payment.getId()).append('\0');
@@ -155,7 +155,7 @@ public class PersistentDatabase {
             }
 
             for (int i = 0; i < idStrings.length; i++) {
-                result.add(new Payment(idStrings[0], Integer.valueOf(amountStrings[i])));
+                result.add(new Payment(idStrings[i], Integer.valueOf(amountStrings[i])));
             }
 
             return result;

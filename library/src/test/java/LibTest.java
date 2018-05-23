@@ -1,3 +1,4 @@
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +32,14 @@ public class LibTest {
         Map<String, List<Payment>> emptyMap = Collections.emptyMap();
         persistentDatabase.saveToDb(emptyMap);  //shouldn't throw
         persistentDatabase.saveToDb(testMap);
-        assertEquals(PAYMENT_LIST, persistentDatabase.get("123"));
-        assertEquals(PAYMENT_LIST1, persistentDatabase.get("shai"));
+        List<Payment> queryResult = persistentDatabase.get("123");
+        for (int i = 0; i < queryResult.size(); i++) {
+            assertEquals(PAYMENT_LIST.get(i), queryResult.get(i));
+        }
+        List<Payment> queryResult2 = persistentDatabase.get("shai");
+        for (int i = 0; i < queryResult2.size(); i++) {
+            assertEquals(PAYMENT_LIST1.get(i), queryResult2.get(i));
+        }
 
     }
 
