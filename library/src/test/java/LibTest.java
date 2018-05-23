@@ -16,7 +16,9 @@ public class LibTest {
 
     private static final List<Payment> PAYMENT_LIST = Arrays.asList(new Payment("Foobar", 10), new Payment("Moobar", 7));
     private static final List<Payment> PAYMENT_LIST1 = Arrays.asList(new Payment("Foobar", 4), new Payment("Boobar", 2));
-    private static final List<Payment> PAYMENT_LIST2 = Arrays.asList(new Payment("Foobar", 2), new Payment("Boobar", 2));
+    private static final List<Payment> PAYMENT_LIST2 = Arrays.asList(new Payment("Foobar", 3), new Payment("Boobar", 3));
+    public static final String ID2 = "456";
+    public static final String ID1 = "123";
     @Rule
     public Timeout globalTimeout = Timeout.seconds(30);
     private HashMap<String, List<Payment>> testMap;
@@ -24,8 +26,8 @@ public class LibTest {
     @Before
     public void setup() {
         testMap = new HashMap<>();
-        testMap.put("123", PAYMENT_LIST);
-        testMap.put("shai", PAYMENT_LIST1);
+        testMap.put(ID1, PAYMENT_LIST);
+        testMap.put(ID2, PAYMENT_LIST1);
     }
 
     @Test
@@ -34,21 +36,35 @@ public class LibTest {
         Map<String, List<Payment>> emptyMap = Collections.emptyMap();
         persistentDatabase.saveToDb(emptyMap);  //shouldn't throw
         persistentDatabase.saveToDb(testMap);
-        List<Payment> queryResult = persistentDatabase.get("123");
-        for (int i = 0; i < queryResult.size(); i++) {
-            assertEquals(PAYMENT_LIST.get(i), queryResult.get(i));
-        }
-        List<Payment> queryResult2 = persistentDatabase.get("shai");
-        for (int i = 0; i < queryResult2.size(); i++) {
-            assertEquals(PAYMENT_LIST1.get(i), queryResult2.get(i));
-        }
+        List<Payment> queryResult = persistentDatabase.get(ID1);
+        checkPaymentList(queryResult, PAYMENT_LIST);
+        List<Payment> queryResult2 = persistentDatabase.get(ID2);
+        checkPaymentList(queryResult2, PAYMENT_LIST1);
     }
 
-//    @Test
-//    public void overrideSaveTest() {
-//        PersistentDatabase persistentDatabase = getPersistentDbTestInst();
-//        persistentDatabase.saveToDb("shai", );
-//    }
+    @Test
+    public void overrideSaveTest() {
+        PersistentDatabase persistentDatabase = getPersistentDbTestInst();
+        persistentDatabase.saveToDb(ID2, PAYMENT_LIST2);
+        List<Payment> paymentList = persistentDatabase.get(ID2);
+        checkPaymentList(paymentList, PAYMENT_LIST2);
+
+        persistentDatabase.saveToDb(testMap);
+        paymentList = persistentDatabase.get(ID1);
+        checkPaymentList(paymentList, PAYMENT_LIST);
+        List<Payment> paymentList2 = persistentDatabase.get(ID2);
+        checkPaymentList(paymentList2, PAYMENT_LIST1);
+
+        persistentDatabase.saveToDb(ID1, PAYMENT_LIST2);
+        paymentList = persistentDatabase.get(ID1);
+        checkPaymentList(paymentList, PAYMENT_LIST2);
+
+        persistentDatabase.saveToDb(testMap);
+        paymentList = persistentDatabase.get(ID1);
+        checkPaymentList(paymentList, PAYMENT_LIST);
+        paymentList2 = persistentDatabase.get(ID2);
+        checkPaymentList(paymentList2, PAYMENT_LIST1);
+    }
 
     ///////////////////////
     // utility
@@ -59,6 +75,12 @@ public class LibTest {
         PersistentDatabase persistentDatabase = new PersistentDatabase(injector.getInstance(SecureDatabaseFactory.class));
         persistentDatabase.dbInstance("test");
         return persistentDatabase;
+    }
+
+    private void checkPaymentList(List<Payment> queryResult, List<Payment> paymentList) {
+        for (int i = 0; i < queryResult.size(); i++) {
+            assertEquals(paymentList.get(i), queryResult.get(i));
+        }
     }
 
 }
