@@ -1,11 +1,7 @@
 package PayBookImplementations;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import il.ac.technion.cs.sd.pay.app.PayBookInitializer;
-import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
-import javafx.util.Pair;
-import org.apache.commons.lang3.SerializationUtils;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,10 +16,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 // TODO: 20-May-18 use maven to define dependencies for these libraries or something?
 
+/**
+ * topSellers, topClients queries return a List<String>
+ * topPayments return a List<Payment>
+ */
 public class PayBookInitializerImpl implements PayBookInitializer {
 
     public static final String SELLERS = "sellers";
@@ -91,10 +90,11 @@ public class PayBookInitializerImpl implements PayBookInitializer {
             Comparator<Map.Entry<String, List<Payment>>> comparator =
                     Comparator.comparing(e -> e.getValue().stream()
                             .mapToLong(Payment::getValue).sum());
+            comparator = comparator.reversed();
             comparator = comparator.thenComparing(Map.Entry::getKey);
 
             // TOP PAYING CLIENTS
-            HashSet<String> topPayingClients = clients.entrySet().stream()
+            ArrayList<String> topPayingClients = clients.entrySet().stream()
                     .sorted(
                             comparator
 //                            (e1, e2) -> e1.getValue().stream().mapToLong(p -> p.getValue()).sum().compareTo(
@@ -102,15 +102,15 @@ public class PayBookInitializerImpl implements PayBookInitializer {
                     )
                     .map(Map.Entry::getKey)
                     .limit(10)
-                    .collect(Collectors.toCollection(HashSet::new));
+                    .collect(Collectors.toCollection(ArrayList::new));
             queryDb.saveToDb(topClients, topPayingClients);
 
             // TOP EARNING SELLERS
-            HashSet<String> topEarningSellers = sellers.entrySet().stream()
+            ArrayList<String> topEarningSellers = sellers.entrySet().stream()
                     .sorted(comparator)
                     .limit(10)
                     .map(Map.Entry::getKey)
-                    .collect(Collectors.toCollection(HashSet::new));
+                    .collect(Collectors.toCollection(ArrayList::new));
             queryDb.saveToDb(topSellers, topEarningSellers);
 
             ArrayList<Payment> sellerTopPayments = sellers.entrySet().stream()

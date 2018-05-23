@@ -1,14 +1,11 @@
 package PayBookImplementations;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import il.ac.technion.cs.sd.pay.app.PayBookReader;
-import javafx.util.Pair;
 import persistentDatabase.PersistentDatabase;
 import structs.Payment;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static PayBookImplementations.PayBookInitializerImpl.*;
@@ -64,13 +61,13 @@ public class PayBookReaderImpl implements PayBookReader {
         // this assumes the usual sort is "biggest" first
 //        Map<String, Long> map = sumMap(dbByClients);
 //        return top10FromMap(map);
-        return this.queryDb.getIds(topClients);
+        return this.queryDb.getQueryAnswer(topClients);
     }
 
     @Override
     public List<String> getRichestSellers() {
         // this assumes the usual sort is "biggest" first
-        return this.queryDb.getIds(topSellers);
+        return this.queryDb.getQueryAnswer(topSellers);
 //        Map<String, Long> map = sumMap(dbBySellers);
 //        return top10FromMap(map);
     }
@@ -89,9 +86,13 @@ public class PayBookReaderImpl implements PayBookReader {
         try {
             List<Payment> res = db.get(id);
             List<String> top = res.stream()
-                    .sorted(Comparator.comparing(Payment::getValue).thenComparing(Payment::getId))
+                    .sorted(
+                            Comparator.comparing(Payment::getValue)
+                                    .reversed()
+                                    .thenComparing(Payment::getId))
                     .limit(1)
-                    .map(Payment::getId).collect(Collectors.toList());
+                    .map(Payment::getId)
+                    .collect(Collectors.toList());
             return Optional.of(top.get(0));
         } catch (Exception e) {
             return Optional.empty();
@@ -175,14 +176,14 @@ public class PayBookReaderImpl implements PayBookReader {
      * @param map a <String, Long> map
      * @return a sorted list of entries
      */
-    private ArrayList<Map.Entry<String, Long>> sortEntries(Map<String, Long> map) {
-        ArrayList<Map.Entry<String, Long>> entries = new ArrayList<>(map.entrySet());
-        entries.sort((entry1, entry2) -> {
-            int comp1 = entry1.getValue().compareTo(entry2.getValue());
-            if (comp1 != 0) {
-                return comp1;
-            } else return entry1.getKey().compareTo(entry2.getKey());
-        });
-        return entries;
-    }
+//    private ArrayList<Map.Entry<String, Long>> sortEntries(Map<String, Long> map) {
+//        ArrayList<Map.Entry<String, Long>> entries = new ArrayList<>(map.entrySet());
+//        entries.sort((entry1, entry2) -> {
+//            int comp1 = entry1.getValue().compareTo(entry2.getValue());
+//            if (comp1 != 0) {
+//                return comp1;
+//            } else return entry1.getKey().compareTo(entry2.getKey());
+//        });
+//        return entries;
+//    }
 }

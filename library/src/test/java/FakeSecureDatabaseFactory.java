@@ -1,7 +1,6 @@
 import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabaseFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.zip.DataFormatException;

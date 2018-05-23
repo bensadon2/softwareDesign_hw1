@@ -1,3 +1,6 @@
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import il.ac.technion.cs.sd.pay.ext.SecureDatabaseFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +55,8 @@ public class LibTest {
     ///////////////////////
 
     private PersistentDatabase getPersistentDbTestInst() {
-        PersistentDatabase persistentDatabase = new PersistentDatabase(new FakeSecureDatabaseFactory());
+        Injector injector = Guice.createInjector(new LibTestModule());
+        PersistentDatabase persistentDatabase = new PersistentDatabase(injector.getInstance(SecureDatabaseFactory.class));
         persistentDatabase.dbInstance("test");
         return persistentDatabase;
     }

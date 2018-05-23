@@ -4,14 +4,8 @@ import PayBookImplementations.PayBookInitializerImpl;
 import PayBookImplementations.PayBookReaderImpl;
 import com.google.inject.AbstractModule;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.name.Names;
 import il.ac.technion.cs.sd.pay.app.PayBookInitializer;
 import il.ac.technion.cs.sd.pay.app.PayBookReader;
-import il.ac.technion.cs.sd.pay.ext.SecureDatabaseFactory;
-import il.ac.technion.cs.sd.pay.ext.SecureDatabaseModule;
-import persistentDatabase.PersistentDatabase;
 
 
 // This module is in the testing project, so that it could easily bind all dependencies from all levels.

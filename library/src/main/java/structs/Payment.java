@@ -1,11 +1,6 @@
 package structs;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class Payment implements Serializable {
     private Integer value;

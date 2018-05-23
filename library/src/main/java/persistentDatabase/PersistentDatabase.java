@@ -5,10 +5,8 @@ import il.ac.technion.cs.sd.pay.ext.SecureDatabase;
 import il.ac.technion.cs.sd.pay.ext.SecureDatabaseFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import structs.Payment;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
@@ -119,10 +117,11 @@ public class PersistentDatabase {
 
     /**
      * saves one user and his payments to the database. NOTE: will override previous entry completely.
-     * @param id the user id
+     *
+     * @param id                the user id
      * @param paymentCollection some collection containing Payment objects
      */
-    public void saveToDb(String id, Collection paymentCollection) {
+    public void saveToDb(String id, List paymentCollection) {
         StringBuilder paymentIdsStrBuilder = new StringBuilder();
         StringBuilder paymentAmountsStrBuilder = new StringBuilder();
         for (Object o : paymentCollection) {
@@ -185,10 +184,16 @@ public class PersistentDatabase {
 //        }
 //    }
 
-    public List<String> getIds(String id) {
+    /**
+     * @param queryCode
+     * @return
+     */
+    public List<String> getQueryAnswer(String queryCode) {
         try {
-            byte[] res = this.idSecureDatabase.get(id.getBytes());
-            return SerializationUtils.deserialize(res);
+            byte[] res = this.idSecureDatabase.get(queryCode.getBytes());
+            String[] result = new String(res).split("\0");
+            List<String> list = Arrays.asList(result);
+            return list;
         } catch (InterruptedException e) {
             return null;
             // TODO: something with this exception

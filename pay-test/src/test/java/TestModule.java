@@ -16,7 +16,7 @@ public class TestModule extends AbstractModule {
         });
 
         // TODO: 22-May-18 how to bind to the PersistentDatabase mock?
-//        bind(PersistentDatabase.class).to();
+        bind(PersistentDatabase.class).to(provideMockPDB().getClass());
     }
 
     @Provides
