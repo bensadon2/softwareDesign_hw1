@@ -117,16 +117,21 @@ public class PersistentDatabase {
 //        }
 //    }
 
+    /**
+     * saves one user and his payments to the database. NOTE: will override previous entry completely.
+     * @param id the user id
+     * @param paymentCollection some collection containing Payment objects
+     */
     public void saveToDb(String id, Collection paymentCollection) {
-        StringBuilder payemntIdsStrBuilder = new StringBuilder();
+        StringBuilder paymentIdsStrBuilder = new StringBuilder();
         StringBuilder paymentAmountsStrBuilder = new StringBuilder();
         for (Object o : paymentCollection) {
             Payment payment = (Payment) o;
-            payemntIdsStrBuilder.append(payment.getId()).append('\0');
+            paymentIdsStrBuilder.append(payment.getId()).append('\0');
             paymentAmountsStrBuilder.append(payment.getValue()).append('\0');
         }
         try {
-            this.idSecureDatabase.addEntry(id.getBytes(), payemntIdsStrBuilder.toString().getBytes());
+            this.idSecureDatabase.addEntry(id.getBytes(), paymentIdsStrBuilder.toString().getBytes());
             this.amountSecureDatabase.addEntry(id.getBytes(), paymentAmountsStrBuilder.toString().getBytes());
 //            byte[] bytes = Payment.payListToBytes(paymentCollection);
 //            this.idSecureDatabase.addEntry(id.getBytes(), SerializationUtils.serialize(paymentCollection));
