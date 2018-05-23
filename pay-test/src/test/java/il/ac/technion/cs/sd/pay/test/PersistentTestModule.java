@@ -3,6 +3,7 @@ package il.ac.technion.cs.sd.pay.test;
 
 import PayBookImplementations.PayBookInitializerImpl;
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provides;
 import org.mockito.Mockito;
 import persistentDatabase.PersistentDatabase;
@@ -13,7 +14,7 @@ import java.util.Arrays;
 public class PersistentTestModule extends AbstractModule {
     protected void configure() {
         //add configuration logic here
-        bind(PersistentDatabase.class).to(provideMockPDB().getClass());
+//        bind(PersistentDatabase.class).to(provideMockPDB().getClass());
     }
 
     @Provides

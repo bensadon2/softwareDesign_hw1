@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 // TODO: 20-May-18 use maven to define dependencies for these libraries or something?
@@ -87,44 +88,24 @@ public class PayBookInitializerImpl implements PayBookInitializer {
             // Primary compare sum of purchases, secondary compare ID
             // TODO: might need to reverse sorting order in one or more categories, and maybe the order between them
             // TODO: It is possible to reverse order by calling .reverse() on the comparator, as long as it DOESN'T use lambdas
-            Comparator<Map.Entry<String, List<Payment>>> comparator =
-                    Comparator.comparing(e -> e.getValue().stream()
-                            .mapToLong(Payment::getValue).sum());
-            comparator = comparator.reversed();
-            comparator = comparator.thenComparing(Map.Entry::getKey);
+//            Comparator<Map.Entry<String, List<Payment>>> comparator =
+//                    Comparator.comparing(e -> e.getValue().stream()
+//                            .mapToLong(Payment::getValue).sum());
+//            comparator = comparator.reversed();
+//            comparator = comparator.thenComparing(Map.Entry::getKey);
 
             // TOP PAYING CLIENTS
-            ArrayList<String> topPayingClients = clients.entrySet().stream()
-                    .sorted(
-                            comparator
-//                            (e1, e2) -> e1.getValue().stream().mapToLong(p -> p.getValue()).sum().compareTo(
-//                                    e2.getValue().stream().mapToLong(p -> p.getValue()).sum())
-                    )
-                    .map(Map.Entry::getKey)
-                    .limit(10)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<String> topPayingClients = getTopTen(clients);
             queryDb.saveToDb(topClients, topPayingClients);
 
             // TOP EARNING SELLERS
-            ArrayList<String> topEarningSellers = sellers.entrySet().stream()
-                    .sorted(comparator)
-                    .limit(10)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<String> topEarningSellers = getTopTen(sellers);
             queryDb.saveToDb(topSellers, topEarningSellers);
 
-            ArrayList<Payment> sellerTopPayments = sellers.entrySet().stream()
-                    .sorted(Comparator.comparing(this::getHighestPayment))
-                    .limit(10)
-                    .map(e -> new Payment(e.getKey(), getHighestPayment(e)))
-                    .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<Payment> sellerTopPayments = getTopTenPayments(sellers);
             queryDb.saveToDb(topPaymentsSellers, sellerTopPayments);
 
-            ArrayList<Payment> clientTopPayments = clients.entrySet().stream()
-                    .sorted(Comparator.comparing(this::getHighestPayment))
-                    .limit(10)
-                    .map(e -> new Payment(e.getKey(), getHighestPayment(e)))
-                    .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<Payment> clientTopPayments = getTopTenPayments(clients);
             queryDb.saveToDb(topPaymentsClients, clientTopPayments);
 
 //            Map<String, Integer> clientsWithTopPayments = clients.entrySet().stream()
@@ -172,6 +153,32 @@ public class PayBookInitializerImpl implements PayBookInitializer {
             e.printStackTrace();
         }
 
+    }
+
+    private ArrayList<Payment> getTopTenPayments(Map<String, List<Payment>> sellers) {
+        return sellers.entrySet().stream()
+                .sorted(
+                        Comparator.comparing(this::getHighestPayment)
+                                .reversed()
+                )
+                .limit(10)
+                .map(e -> new Payment(e.getKey(), getHighestPayment(e)))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private ArrayList<String> getTopTen(Map<String, List<Payment>> clientsOrSellers) {
+        Comparator<Map.Entry<String, List<Payment>>> comparator =
+                Comparator.comparing(e -> e.getValue().stream()
+                        .mapToLong(Payment::getValue).sum());
+        comparator = comparator.reversed();
+        comparator = comparator.thenComparing(Map.Entry::getKey);
+
+        ArrayList<String> results = clientsOrSellers.entrySet().stream()
+                .sorted(comparator)
+                .limit(10)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toCollection(ArrayList::new));
+        return results;
     }
 
     // TODO: this is returning Integer because that's the end result expected by the reader :/
