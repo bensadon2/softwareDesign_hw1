@@ -1,6 +1,5 @@
 package il.ac.technion.cs.sd.pay.test;
 
-import com.google.inject.Inject;
 import persistentDatabase.PersistentDatabase;
 import structs.Payment;
 
@@ -10,11 +9,9 @@ import java.util.Map;
 
 public class PersistentDatabaseFake extends PersistentDatabase {
 
-
     private Map<String, List> db;
     public static Map<String, Map<String, List>> dbMap = new HashMap<>();
 
-    //    @Inject
     PersistentDatabaseFake() {
         db = new HashMap<>();
     }

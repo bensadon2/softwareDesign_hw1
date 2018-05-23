@@ -21,7 +21,7 @@ public class FakeSecureDatabaseFactory implements SecureDatabaseFactory {
         }
 
         @Override
-        public byte[] get(byte[] key) throws InterruptedException {
+        public byte[] get(byte[] key) {
 
             String keyStr = new String(key);
             if (!map.containsKey(keyStr)) throw new NoSuchElementException();

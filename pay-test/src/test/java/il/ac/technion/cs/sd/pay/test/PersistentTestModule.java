@@ -1,7 +1,6 @@
 package il.ac.technion.cs.sd.pay.test;
 
 
-import PayBookImplementations.PayBookInitializerImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import org.mockito.Mockito;
@@ -20,8 +19,6 @@ public class PersistentTestModule extends AbstractModule {
     private static final List<Payment> PAID_TO_LIST = Arrays.asList(new Payment("joey", 1), new Payment("chandler", 2), new Payment("monica", 3));
 
     protected void configure() {
-        //add configuration logic here
-//        bind(PersistentDatabase.class).to(provideMockPDB().getClass());
     }
 
     @Provides

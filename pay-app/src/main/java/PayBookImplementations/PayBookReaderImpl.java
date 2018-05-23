@@ -117,6 +117,7 @@ public class PayBookReaderImpl implements PayBookReader {
     public Map<String, Integer> getBiggestPaymentsFromClients() {
         List<Payment> res = this.queryDb.get(topPaymentsClients);
         Map<String, Integer> result = res.stream()
+//                .sorted()
                 .collect(Collectors.toMap(Payment::getId, Payment::getValue));
         return result;
 //        Set<Pair<String, Integer>> results = this.queryDb.getSet(topPaymentsClients);

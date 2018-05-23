@@ -47,26 +47,6 @@ public class Payment implements Serializable {
         id = new String(paymentData, 1, paymentData.length - 1);
     }
 
-    /**
-     * returns the payment as a byte array. since the legal values of amount are from 1-10, a single byte (the first)
-     * is enough, and since the id is 10 chars at most the array returned is no longer then 11 bytes.
-     *
-     * @return byte[] representing the payment. first byte is amount, the rest is the id where is char is a byte.
-     * i.e result is [amount, s, o, m, e, i, d] for example.
-     */
-//    public byte[] toBytes() {
-//        byte[] valueByteList = new byte[]{value.byteValue()};
-//        return ArrayUtils.addAll(valueByteList, id.getBytes());
-//    }
-
-/*    public static *//*<T extends Collection & Serializable>*//* byte[] payListToBytes(*//*T*//*Collection payList) throws IOException {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutput out = new ObjectOutputStream(bos)) {
-            out.writeObject(payList);
-            return bos.toByteArray();
-        }
-    }*/
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -84,12 +64,4 @@ public class Payment implements Serializable {
         result = 31 * result + getId().hashCode();
         return result;
     }
-
-    /*public static ArrayList<Payment> bytesToPayList(byte[] bytes) throws IOException, ClassNotFoundException {
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-             ObjectInput in = new ObjectInputStream(bis)) {
-            return (ArrayList<Payment>) in.readObject();
-
-        }
-    }*/
 }

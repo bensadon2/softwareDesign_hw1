@@ -4,7 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import il.ac.technion.cs.sd.pay.app.PayBookInitializer;
 import il.ac.technion.cs.sd.pay.app.PayBookReader;
-import il.ac.technion.cs.sd.pay.ext.SecureDatabaseModule;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -13,20 +13,21 @@ import structs.Payment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static PayBookImplementations.PayBookInitializerImpl.topPaymentsClients;
 import static org.junit.Assert.*;
 
 public class OurTests {
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(30);
+    private Map<String, Integer> q8res;
+    private Map<String, Integer> q7res;
+    private List<String> q4res;
+    private List<String> q3res;
 
     private static PayBookReader setupAndGetReader() {
-//        String fileContents =
-//                new Scanner(new File(OurTests.class.getResource(fileName).getFile())).useDelimiter("\\Z").next();
         Injector injector = Guice.createInjector(new PayBookModule(), new PersistentTestModule());
-//        injector.getInstance(PayBookInitializer.class).setup(fileContents);
         return injector.getInstance(PayBookReader.class);
     }
 
@@ -36,6 +37,64 @@ public class OurTests {
         Injector injector = Guice.createInjector(new PayBookModule(), new InitializerModule());
         injector.getInstance(PayBookInitializer.class).setup(fileContents);
         return injector.getInstance(PayBookReader.class);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+
+        List<Payment> query8Results = Arrays.asList(
+                new Payment("884", 13),
+                new Payment("123", 10),
+                new Payment("313", 10),
+                new Payment("818", 10),
+                new Payment("917", 10),
+                new Payment("121", 9),
+                new Payment("171", 9),
+                new Payment("191", 9),
+                new Payment("414", 9),
+                new Payment("444", 9)
+        );
+        q8res = query8Results.stream().collect(Collectors.toMap(Payment::getId, Payment::getValue));
+
+        List<Payment> query7Results = Arrays.asList(
+                new Payment("123", 13),
+                new Payment("Coobar", 10),
+                new Payment("Foobar", 10),
+                new Payment("Poobar", 10),
+                new Payment("171", 9),
+                new Payment("181", 9),
+                new Payment("212", 9),
+                new Payment("414", 9),
+                new Payment("Moobar", 9),
+                new Payment("111", 8)
+        );
+        q7res = query7Results.stream().collect(Collectors.toMap(Payment::getId, Payment::getValue));
+
+        q4res = Arrays.asList(
+                "Coobar",
+                "Foobar",
+                "Moobar",
+                "Poobar",
+                "123",
+                "151",
+                "181",
+                "212",
+                "414",
+                "Boobar"
+        );
+
+        q3res = Arrays.asList(
+                "414",
+                "181",
+                "123",
+                "818",
+                "121",
+                "313",
+                "444",
+                "664",
+                "171",
+                "191"
+        );
     }
 
     @Test
@@ -51,6 +110,15 @@ public class OurTests {
         assertEquals(1.0, reader.getPayment("paidTo", "joey").getAsDouble(), 0.00001);
         assertEquals(3.0, reader.getPayment("paidTo", "monica").getAsDouble(), 0.00001);
         assertFalse(reader.getPayment("paidTo", "pheobe").isPresent());
+    }
+
+    @Test
+    public void testMedium() throws Exception {
+        PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
+        assertEquals(reader.getBiggestSpenders(), q3res);
+        assertEquals(reader.getRichestSellers(), q4res);
+        assertEquals(reader.getBiggestPaymentsFromClients(), q8res);
+        assertEquals(reader.getBiggestPaymentsToSellers(), q7res);
     }
 
     @Test
@@ -70,8 +138,6 @@ public class OurTests {
         assertEquals(Optional.of("884"), reader.getBiggestClient("123"));
         assertEquals(Optional.of("444"), reader.getBiggestClient("171"));
         assertEquals(Optional.of("313"), reader.getBiggestClient("Poobar"));
-//        assertEquals(, reader.getRichestSellers());
-        // TODO: 24-May-18 add some query for this - number 4
-
     }
+
 }
