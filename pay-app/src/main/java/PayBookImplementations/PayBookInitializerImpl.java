@@ -186,7 +186,7 @@ public class PayBookInitializerImpl implements PayBookInitializer {
     private Integer getHighestPayment(Map.Entry<String, List<Payment>> entry) {
         try {
             List<Integer> res = entry.getValue().stream()
-                    .sorted(Comparator.comparing(Payment::getValue))
+                    .sorted(Comparator.comparing(Payment::getValue).reversed())
                     .limit(1)
                     .mapToInt(Payment::getValue)
                     .boxed()
