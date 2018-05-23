@@ -17,8 +17,8 @@ public class LibTest {
     private static final List<Payment> PAYMENT_LIST = Arrays.asList(new Payment("Foobar", 10), new Payment("Moobar", 7));
     private static final List<Payment> PAYMENT_LIST1 = Arrays.asList(new Payment("Foobar", 4), new Payment("Boobar", 2));
     private static final List<Payment> PAYMENT_LIST2 = Arrays.asList(new Payment("Foobar", 3), new Payment("Boobar", 3));
-    public static final String ID2 = "456";
-    public static final String ID1 = "123";
+    private static final String ID2 = "456";
+    private static final String ID1 = "123";
     @Rule
     public Timeout globalTimeout = Timeout.seconds(30);
     private HashMap<String, List<Payment>> testMap;
