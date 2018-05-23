@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 import static PayBookImplementations.PayBookInitializerImpl.topPaymentsClients;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class OurTests {
 
@@ -31,13 +31,18 @@ public class OurTests {
     }
 
     @Test
-    public void testSimple() throws Exception {
+    public void testSimple() {
         PayBookReader reader = setupAndGetReader();
         Map<String, Integer> res1 = new HashMap<>();
         res1.put("Moobar", 7);
         res1.put("Foobar", 10);
         assertEquals(reader.getBiggestPaymentsFromClients(), res1);
         assertEquals(reader.getBiggestSpenders(), Arrays.asList("Foobar", "Lol"));
+        assertTrue(reader.paidTo("paidTo", "joey"));
+        assertFalse(reader.paidTo("paidTo", "ross"));
+        assertEquals(1.0, reader.getPayment("paidTo", "joey").getAsDouble(), 0.00001);
+        assertEquals(3.0, reader.getPayment("paidTo", "monica").getAsDouble(), 0.00001);
+        assertFalse(reader.getPayment("paidTo", "pheobe").isPresent());
 //        Mockito.when(mock.getQueryAnswer(PayBookInitializerImpl.topClients)).thenReturn(Arrays.asList("Foobar", "Lol"));
 //        assertEquals(Arrays.asList("Foobar", "Boobar", "Moobar"), reader.getRichestSellers());
 //        assertEquals(OptionalDouble.of(10.0), reader.getPayment("123", "Foobar"));
