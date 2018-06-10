@@ -49,6 +49,8 @@ public class PersistentDatabase {
 
                 this.idSecureDatabase.addEntry(entry.getKey().getBytes(), payemntIdsStrBuilder.toString().getBytes());
                 this.amountSecureDatabase.addEntry(entry.getKey().getBytes(), paymentAmountsStrBuilder.toString().getBytes());
+                payemntIdsStrBuilder.setLength(0);
+                paymentAmountsStrBuilder.setLength(0);
             } catch (DataFormatException e) {
                 e.printStackTrace();
                 throw new RuntimeException("bad data for db");
@@ -62,7 +64,7 @@ public class PersistentDatabase {
      * @param id                the user id
      * @param paymentCollection some collection containing Payment objects
      */
-    public void saveToDb(String id, List paymentCollection) {
+    public void saveToDb(String id, Collection<Payment> paymentCollection) {
         StringBuilder paymentIdsStrBuilder = new StringBuilder();
         StringBuilder paymentAmountsStrBuilder = new StringBuilder();
         for (Object o : paymentCollection) {
@@ -73,6 +75,19 @@ public class PersistentDatabase {
         try {
             this.idSecureDatabase.addEntry(id.getBytes(), paymentIdsStrBuilder.toString().getBytes());
             this.amountSecureDatabase.addEntry(id.getBytes(), paymentAmountsStrBuilder.toString().getBytes());
+        } catch (Exception e) {
+            throw new RuntimeException("bad data for db");
+        }
+    }
+
+    public void saveToDb(String id, List<String> idCollection) {
+        StringBuilder idsStrBuilder = new StringBuilder();
+        for (Object o : idCollection) {
+            String curId = (String) o;
+            idsStrBuilder.append(curId).append('\0');
+        }
+        try {
+            this.idSecureDatabase.addEntry(id.getBytes(), idsStrBuilder.toString().getBytes());
         } catch (Exception e) {
             throw new RuntimeException("bad data for db");
         }
