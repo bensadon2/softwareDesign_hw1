@@ -114,7 +114,7 @@ public class OurTests {
 
     @Test
     public void testMedium() throws Exception {
-        PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
+        PayBookReader reader = setupAndGetReaderInitializer("our_medium.xml");
         assertEquals(reader.getBiggestSpenders(), q3res);
         assertEquals(reader.getRichestSellers(), q4res);
         assertEquals(reader.getBiggestPaymentsFromClients(), q8res);
@@ -123,7 +123,7 @@ public class OurTests {
 
     @Test
     public void testMedium2() throws Exception {
-        PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
+        PayBookReader reader = setupAndGetReaderInitializer("our_medium.xml");
         assertTrue(reader.paidTo("151", "Poobar"));
         assertEquals(OptionalDouble.of(3), reader.getPayment("151", "Poobar"));
         assertFalse(reader.paidTo("414", "Poobar"));
@@ -133,7 +133,7 @@ public class OurTests {
 
     @Test
     public void testMedium3() throws FileNotFoundException {
-        PayBookReader reader = setupAndGetReaderInitializer("medium.xml");
+        PayBookReader reader = setupAndGetReaderInitializer("our_medium.xml");
         assertEquals(Optional.of("123"), reader.getBiggestClient("Foobar"));
         assertEquals(Optional.of("884"), reader.getBiggestClient("123"));
         assertEquals(Optional.of("444"), reader.getBiggestClient("171"));
