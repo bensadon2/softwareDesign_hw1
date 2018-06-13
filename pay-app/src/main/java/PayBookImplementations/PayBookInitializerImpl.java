@@ -56,11 +56,11 @@ public class PayBookInitializerImpl implements PayBookInitializer {
 
             // TOP PAYING CLIENTS
             ArrayList<String> topPayingClients = getTopTen(clients);
-            queryDb.saveToDb(topClients, topPayingClients);
+            queryDb.saveToDb2(topClients, topPayingClients);
 
             // TOP EARNING SELLERS
             ArrayList<String> topEarningSellers = getTopTen(sellers);
-            queryDb.saveToDb(topSellers, topEarningSellers);
+            queryDb.saveToDb2(topSellers, topEarningSellers);
 
             ArrayList<Payment> sellerTopPayments = getTopTenPayments(sellers);
             queryDb.saveToDb(topPaymentsSellers, sellerTopPayments);
@@ -82,7 +82,7 @@ public class PayBookInitializerImpl implements PayBookInitializer {
                 .sorted(
                         Comparator.comparing(this::getHighestPayment)
                                 .reversed()
-                                .thenComparing(e -> e.getKey())
+                                .thenComparing(Map.Entry::getKey)
                 )
                 .limit(10)
                 .map(e -> new Payment(e.getKey(), getHighestPayment(e)))
@@ -96,12 +96,11 @@ public class PayBookInitializerImpl implements PayBookInitializer {
         comparator = comparator.reversed();
         comparator = comparator.thenComparing(Map.Entry::getKey);
 
-        ArrayList<String> results = clientsOrSellers.entrySet().stream()
+        return clientsOrSellers.entrySet().stream()
                 .sorted(comparator)
                 .limit(10)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toCollection(ArrayList::new));
-        return results;
     }
 
     private Integer getHighestPayment(Map.Entry<String, List<Payment>> entry) {
@@ -191,8 +190,7 @@ public class PayBookInitializerImpl implements PayBookInitializer {
     private String getStringFromElement(Element element) {
         Node node = element.getFirstChild();
         if (node instanceof CharacterData) {
-            String trimmed = ((CharacterData) node).getData().trim();
-            return trimmed;
+            return ((CharacterData) node).getData().trim();
         }
         System.out.println("shouldn't have gotten here");
         return "";
