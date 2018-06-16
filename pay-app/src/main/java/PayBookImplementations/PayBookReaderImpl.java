@@ -131,6 +131,9 @@ public class PayBookReaderImpl implements PayBookReader {
     private List<Payment> getClientSellerPayments(String clientId, String sellerId) {
 //        List<byte[]> paymentsByteList = dbByClients.get(clientId);
         List<Payment> paymentsByteList = dbByClients.get(clientId);
+        if (paymentsByteList == null) {
+            return new ArrayList<>();
+        }
         return paymentsByteList.stream()
 //                .map(bytes -> new Payment(bytes))
                 .filter(payment -> payment.getId().equals(sellerId))

@@ -229,8 +229,15 @@ public class PersistentDatabase {
 
     public List<String> getQueryAnswer(String queryCode) {
         try {
-            byte[] res = this.idLengthSecureDatabase.get(queryCode.getBytes());
-            String[] result = new String(res).split("\0");
+//            byte[] res = this.idLengthSecureDatabase.get(queryCode.getBytes());
+            byte[] length = this.idLengthSecureDatabase.get(queryCode.getBytes());
+            String lengthStr = new String(length);
+            Integer lengthInt = Integer.valueOf(lengthStr);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < lengthInt; i++) {
+                sb.append(new String(idChunksSecureDatabase.get(getSubKey(queryCode, i))));
+            }
+            String[] result = sb.toString().split("\0");
             return Arrays.asList(result);
         } catch (InterruptedException e) {
             return null;
